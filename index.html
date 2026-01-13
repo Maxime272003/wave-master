@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wave Master - Wave Management Simulator</title>
+    <meta name="description" content="Learn League of Legends wave management with this interactive 3D simulator">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loader">
+            <div class="wave-icon">🌊</div>
+            <h1>Wave Master</h1>
+            <p>Loading...</p>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Menu -->
+    <div id="main-menu" class="hidden">
+        <div class="menu-container">
+            <div class="menu-header">
+                <h1 class="title">Wave Master</h1>
+                <p class="subtitle">Maîtrisez la gestion des vagues</p>
+            </div>
+            <div class="menu-buttons">
+                <button class="menu-btn" data-mode="tutorial">
+                    <span class="btn-text">Tutorial</span>
+                    <span class="btn-desc">Apprenez les bases</span>
+                </button>
+                <button class="menu-btn" data-mode="freeplay">
+                    <span class="btn-text">Freeplay</span>
+                    <span class="btn-desc">Entraînement libre</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Game HUD -->
+    <div id="game-hud" class="hidden">
+        <div class="hud-top">
+            <div class="hud-left">
+                <div class="stat-box gold">
+                    <span class="stat-icon">💰</span>
+                    <span class="stat-value" id="gold-value">0</span>
+                    <span class="stat-label">Gold</span>
+                </div>
+                <div class="stat-box cs">
+                    <span class="stat-icon">⚔️</span>
+                    <span class="stat-value" id="cs-value">0</span>
+                    <span class="stat-label">CS</span>
+                </div>
+                <div class="stat-box xp">
+                    <span class="stat-icon">⭐</span>
+                    <span class="stat-value" id="xp-value">0</span>
+                    <span class="stat-label">XP</span>
+                </div>
+            </div>
+            <div class="hud-center">
+                <div class="wave-state-display">
+                    <span class="wave-state-label">État de la Vague</span>
+                    <span class="wave-state-value" id="wave-state">EVEN</span>
+                </div>
+                <div class="game-timer" id="game-timer">0:00</div>
+            </div>
+            <div class="hud-right">
+                <button class="hud-btn" id="pause-btn">⏸️</button>
+                <button class="hud-btn" id="exit-btn">✖️</button>
+            </div>
+        </div>
+
+
+        <!-- Tutorial Panel -->
+        <div class="tutorial-panel hidden" id="tutorial-panel">
+            <div class="tutorial-content" id="tutorial-content"></div>
+            <div class="tutorial-nav">
+                <button class="tutorial-btn" id="tutorial-prev">← Précédent</button>
+                <span class="tutorial-step" id="tutorial-step">1/5</span>
+                <button class="tutorial-btn" id="tutorial-next">Suivant →</button>
+            </div>
+        </div>
+
+        <!-- Wave Indicator (visual) -->
+        <div class="wave-indicator" id="wave-indicator">
+            <div class="lane-visual">
+                <div class="tower enemy-tower">🏰</div>
+                <div class="wave-position" id="wave-position-marker"></div>
+                <div class="tower ally-tower">🏠</div>
+            </div>
+            <div class="minion-count">
+                <span class="enemy-count" id="enemy-minion-count">6</span>
+                <span>vs</span>
+                <span class="ally-count" id="ally-minion-count">6</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pause Menu -->
+    <div id="pause-menu" class="hidden">
+        <div class="pause-container">
+            <h2>Pause</h2>
+            <button class="menu-btn" id="resume-btn">Reprendre</button>
+            <button class="menu-btn" id="restart-btn">Recommencer</button>
+            <button class="menu-btn" id="quit-btn">Quitter</button>
+        </div>
+    </div>
+
+    <!-- Victory/Results Screen -->
+    <div id="results-screen" class="hidden">
+        <div class="results-container">
+            <h2 id="results-title">Résultats</h2>
+            <div class="results-stats">
+                <div class="result-item">
+                    <span class="result-label">Gold gagné</span>
+                    <span class="result-value" id="result-gold">0</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">CS</span>
+                    <span class="result-value" id="result-cs">0</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Score</span>
+                    <span class="result-value" id="result-score">0</span>
+                </div>
+            </div>
+            <div class="results-grade" id="results-grade">A</div>
+            <button class="menu-btn" id="results-continue">Continuer</button>
+        </div>
+    </div>
+
+    <!-- Three.js Canvas Container -->
+    <div id="game-canvas"></div>
+
+    <!-- Scripts -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
