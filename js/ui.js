@@ -184,4 +184,27 @@ export class GameUI {
             pop.remove();
         }, 1000);
     }
+    
+    // === Spell Cooldowns ===
+    
+    updateSpellCooldowns(cooldowns) {
+        for (const [key, data] of Object.entries(cooldowns)) {
+            const spellEl = document.getElementById(`spell-${key.toLowerCase()}`);
+            const cdEl = document.getElementById(`spell-${key.toLowerCase()}-cd`);
+            
+            if (spellEl && cdEl) {
+                if (data.ready) {
+                    spellEl.classList.add('ready');
+                    spellEl.classList.remove('on-cooldown');
+                    cdEl.style.transform = 'scaleY(0)';
+                } else {
+                    spellEl.classList.remove('ready');
+                    spellEl.classList.add('on-cooldown');
+                    const cdPercent = 1 - (data.percent / 100);
+                    cdEl.style.transform = `scaleY(${cdPercent})`;
+                }
+            }
+        }
+    }
 }
+

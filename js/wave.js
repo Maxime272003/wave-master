@@ -196,21 +196,91 @@ export class WaveManager {
     }
     
     checkTowerCrash() {
-        // Check if enemy minions reach ally tower
+        const towerDamage = 200;
+        const towerAttackSpeed = 1000; // ms between attacks
+        const minionTowerDamage = 5; // damage minions deal to tower
+        
+        // Initialize tower attack timers if needed
+        if (!this.allyTowerLastAttack) this.allyTowerLastAttack = 0;
+        if (!this.enemyTowerLastAttack) this.enemyTowerLastAttack = 0;
+        
+        // Ally tower attacks enemy minions in range
+        const enemiesNearAllyTower = this.enemyMinions.filter(
+            m => !m.isDead && m.position.z < this.allyTowerZ + 8
+        );
+        
+        if (enemiesNearAllyTower.length > 0 && this.gameTime - this.allyTowerLastAttack >= towerAttackSpeed) {
+            // Attack the closest enemy minion
+            const target = enemiesNearAllyTower.reduce((closest, m) => {
+                return m.position.z < closest.position.z ? m : closest;
+            });
+            target.takeDamage(towerDamage);
+            this.allyTowerLastAttack = this.gameTime;
+            this.createTowerAttackEffect(-40, target.position);
+        }
+        
+        // Enemy tower attacks ally minions in range
+        const alliesNearEnemyTower = this.allyMinions.filter(
+            m => !m.isDead && m.position.z > this.enemyTowerZ - 8
+        );
+        
+        if (alliesNearEnemyTower.length > 0 && this.gameTime - this.enemyTowerLastAttack >= towerAttackSpeed) {
+            // Attack the closest ally minion
+            const target = alliesNearEnemyTower.reduce((closest, m) => {
+                return m.position.z > closest.position.z ? m : closest;
+            });
+            target.takeDamage(towerDamage);
+            this.enemyTowerLastAttack = this.gameTime;
+            this.createTowerAttackEffect(40, target.position);
+        }
+        
+        // Minions attack tower if no enemy minions nearby
         for (const minion of this.enemyMinions) {
-            if (!minion.isDead && minion.position.z < this.allyTowerZ) {
-                // Tower attacks minion
-                minion.takeDamage(150);
+            if (!minion.isDead && minion.position.z < this.allyTowerZ + 5) {
+                // Enemy minion reached ally tower - stop and attack tower
+                minion.isAttackingTower = true;
             }
         }
         
-        // Check if ally minions reach enemy tower
         for (const minion of this.allyMinions) {
-            if (!minion.isDead && minion.position.z > this.enemyTowerZ) {
-                // Tower attacks minion
-                minion.takeDamage(150);
+            if (!minion.isDead && minion.position.z > this.enemyTowerZ - 5) {
+                // Ally minion reached enemy tower - stop and attack tower
+                minion.isAttackingTower = true;
             }
         }
+    }
+    
+    createTowerAttackEffect(towerZ, targetPos) {
+        // Simple tower shot effect (line from tower to target)
+        const material = new THREE.LineBasicMaterial({ 
+            color: towerZ < 0 ? 0x3b82f6 : 0xef4444,
+            transparent: true,
+            opacity: 1
+        });
+        
+        const points = [
+            new THREE.Vector3(0, 8, towerZ),
+            new THREE.Vector3(targetPos.x, 1, targetPos.z)
+        ];
+        
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const line = new THREE.Line(geometry, material);
+        this.scene.add(line);
+        
+        // Fade out and remove
+        let opacity = 1;
+        const fade = () => {
+            opacity -= 0.1;
+            line.material.opacity = opacity;
+            if (opacity > 0) {
+                requestAnimationFrame(fade);
+            } else {
+                this.scene.remove(line);
+                geometry.dispose();
+                material.dispose();
+            }
+        };
+        fade();
     }
     
     getWaveState() {

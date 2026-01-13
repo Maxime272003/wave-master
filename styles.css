@@ -555,6 +555,84 @@ body {
     color: var(--text-muted);
 }
 
+/* ===== Spell Bar ===== */
+.spell-bar {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.spell {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.spell:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.spell.ready {
+    border-color: var(--success);
+    box-shadow: 0 0 10px rgba(52, 211, 153, 0.5);
+}
+
+.spell.on-cooldown {
+    opacity: 0.6;
+}
+
+.spell-key {
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    background: rgba(0, 0, 0, 0.5);
+    padding: 1px 4px;
+    border-radius: 3px;
+}
+
+.spell-icon {
+    font-size: 1.5rem;
+}
+
+.spell-cooldown {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    transform-origin: bottom;
+    transform: scaleY(0);
+    transition: transform 0.1s linear;
+}
+
+.spell-cooldown-text {
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
 /* ===== Wave Indicator ===== */
 .wave-indicator {
     position: absolute;
