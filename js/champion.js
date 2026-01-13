@@ -148,11 +148,13 @@ export class Champion {
     onKeyDown(event) {
         const currentTime = performance.now();
         
+        // Spells on A, Z, E (AZERTY layout)
+        // Note: KeyA/KeyZ are the physical keys, not the letters
         switch (event.code) {
-            case 'KeyA':
+            case 'KeyQ': // Physical Q key = A on AZERTY
                 this.castSpell('A', currentTime);
                 break;
-            case 'KeyZ':
+            case 'KeyW': // Physical W key = Z on AZERTY
                 this.castSpell('Z', currentTime);
                 break;
             case 'KeyE':
@@ -266,7 +268,13 @@ export class Champion {
     onRightClick(event) {
         event.preventDefault();
         
-        // Raycast to find ground position
+        // If targeting a minion, attack it instead of moving
+        if (this.targetMinion && !this.targetMinion.isDead) {
+            this.tryAttack(this.targetMinion, performance.now());
+            return;
+        }
+        
+        // Raycast to find ground position for movement
         this.raycaster.setFromCamera(this.mouse, this.camera);
         
         // Create a ground plane for intersection
@@ -295,10 +303,7 @@ export class Champion {
     }
     
     onClick(event) {
-        // Try to attack clicked minion
-        if (this.targetMinion) {
-            this.tryAttack(this.targetMinion);
-        }
+        // Left-click not used - all actions on right-click
     }
     
     tryAttackLowestHealth() {

@@ -9,9 +9,9 @@ export const TUTORIAL_STEPS = [
             <p>Elle peut vous faire gagner des lanes et des parties sans même avoir à outplay mécaniquement votre adversaire!</p>
             <p><strong>Contrôles:</strong></p>
             <ul>
-                <li><strong>ZQSD/Flèches</strong> - Déplacer votre champion</li>
-                <li><strong>Clic</strong> - Attaquer un sbire</li>
+                <li><strong>Clic droit</strong> - Déplacer / Attaquer un sbire</li>
                 <li><strong>Espace</strong> - Attaquer le sbire le plus bas en vie</li>
+                <li><strong>A / Z / E</strong> - Sorts (Frappe, AOE, Sprint)</li>
             </ul>
         `
     },
