@@ -351,11 +351,14 @@ export class Champion {
         direction.y = 0;
         direction.normalize();
         
+        // Store direction values explicitly
+        const dirX = direction.x;
+        const dirZ = direction.z;
+        
         // Create projectile
-        const projectileGeometry = new THREE.SphereGeometry(0.4, 16, 16);
+        const projectileGeometry = new THREE.SphereGeometry(0.5, 16, 16);
         const projectileMaterial = new THREE.MeshBasicMaterial({
             color: 0xff4500,
-            emissive: 0xff4500,
             transparent: true,
             opacity: 1
         });
@@ -369,10 +372,10 @@ export class Champion {
         projectile.add(glowLight);
         
         // Animate projectile
-        const startPos = projectile.position.clone();
-        const speed = 30; // units per second
+        const speed = 25; // units per second
         const hitEnemies = new Set(); // Track already hit enemies
         let isActive = true;
+        let lastTime = performance.now();
         
         // Auto-destroy after 3 seconds
         setTimeout(() => {
@@ -387,10 +390,14 @@ export class Champion {
         const animateProjectile = () => {
             if (!isActive) return;
             
-            const moveDistance = speed * 0.016; // Approx frame time
+            const now = performance.now();
+            const deltaTime = (now - lastTime) / 1000;
+            lastTime = now;
             
-            projectile.position.x += direction.x * moveDistance;
-            projectile.position.z += direction.z * moveDistance;
+            const moveDistance = speed * deltaTime;
+            
+            projectile.position.x += dirX * moveDistance;
+            projectile.position.z += dirZ * moveDistance;
             
             // Check collision with enemy minions - pass through all!
             if (this.onProjectileHit) {
