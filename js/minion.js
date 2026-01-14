@@ -91,16 +91,16 @@ export class Minion {
         
         switch (this.type) {
             case 'melee':
-                geometry = new THREE.BoxGeometry(1.8, 2.0, 1.8); // Bigger
-                size = 1.2;
+                geometry = new THREE.BoxGeometry(1.2, 1.4, 1.2); // Original size
+                size = 1;
                 break;
             case 'caster':
-                geometry = new THREE.ConeGeometry(1.0, 1.6, 6); // Bigger
-                size = 1.1;
+                geometry = new THREE.ConeGeometry(0.7, 1.2, 6); // Original size
+                size = 0.9;
                 break;
             case 'cannon':
-                geometry = new THREE.CylinderGeometry(1.2, 1.4, 2.4, 8); // Bigger
-                size = 1.6;
+                geometry = new THREE.CylinderGeometry(0.8, 1.0, 1.8, 8); // Original size
+                size = 1.4;
                 break;
             default:
                 geometry = new THREE.BoxGeometry(1.2, 1.4, 1.2);
