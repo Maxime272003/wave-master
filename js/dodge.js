@@ -31,7 +31,9 @@ export class DodgeManager {
         this.projectiles = [];
         this.difficultyLevel = 1;
         this.spawnRate = 1500;
+        this.spawnRate = 1500;
         this.projectileSpeed = 8;
+        this.lastSpawnTime = -3000; // Allow immediate spawn
         
         // Reset champion position
         this.champion.reset();
