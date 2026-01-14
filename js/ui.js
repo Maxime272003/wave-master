@@ -197,14 +197,16 @@ export class GameUI {
                     spellEl.classList.add('ready');
                     spellEl.classList.remove('on-cooldown');
                     cdEl.style.transform = 'scaleY(0)';
+                    cdEl.style.display = 'none';
                 } else {
                     spellEl.classList.remove('ready');
                     spellEl.classList.add('on-cooldown');
+                    cdEl.style.display = 'block';
+                    // Cooldown overlay: full when just used (0%), empty when ready (100%)
                     const cdPercent = 1 - (data.percent / 100);
-                    cdEl.style.transform = `scaleY(${cdPercent})`;
+                    cdEl.style.transform = `scaleY(${Math.max(0, cdPercent)})`;
                 }
             }
         }
     }
 }
-
