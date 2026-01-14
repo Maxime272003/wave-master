@@ -83,7 +83,7 @@ export class Champion {
     }
     
     createMesh() {
-        // Create placeholder mesh first (model loads async)
+        // Champion body
         const bodyGeometry = new THREE.CapsuleGeometry(0.5, 1.2, 8, 16);
         const bodyMaterial = new THREE.MeshStandardMaterial({
             color: 0x8b5cf6,
@@ -98,9 +98,6 @@ export class Champion {
         this.mesh.position.set(0, 1, -20);
         this.scene.add(this.mesh);
         
-        // Try to load 3D model asynchronously
-        this.loadChampionModel();
-        
         // Attack range indicator (circle on ground)
         const rangeGeometry = new THREE.RingGeometry(this.attackRange - 0.1, this.attackRange, 32);
         const rangeMaterial = new THREE.MeshBasicMaterial({
@@ -111,7 +108,7 @@ export class Champion {
         });
         this.rangeIndicator = new THREE.Mesh(rangeGeometry, rangeMaterial);
         this.rangeIndicator.rotation.x = -Math.PI / 2;
-        this.rangeIndicator.position.y = -0.95;
+        this.rangeIndicator.position.y = 0.05;
         this.mesh.add(this.rangeIndicator);
         
         // Champion glow
@@ -142,60 +139,6 @@ export class Champion {
         this.moveIndicator.rotation.x = -Math.PI / 2;
         this.moveIndicator.visible = false;
         this.scene.add(this.moveIndicator);
-    }
-    
-    async loadChampionModel() {
-        try {
-            const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
-            const loader = new GLTFLoader();
-            
-            loader.load(
-                'https://threejs.org/examples/models/gltf/Soldier.glb',
-                (gltf) => {
-                    const model = gltf.scene;
-                    model.scale.set(1.2, 1.2, 1.2);
-                    model.rotation.y = Math.PI; // Face forward
-                    
-                    // Apply purple tint to all meshes
-                    model.traverse((child) => {
-                        if (child.isMesh) {
-                            child.castShadow = true;
-                            child.receiveShadow = true;
-                            // Apply purple color tint
-                            if (child.material) {
-                                child.material = child.material.clone();
-                                child.material.color.setHex(0x9966ff);
-                                child.material.emissive = new THREE.Color(0x6d28d9);
-                                child.material.emissiveIntensity = 0.2;
-                            }
-                        }
-                    });
-                    
-                    // Replace placeholder mesh with loaded model
-                    const oldPosition = this.mesh.position.clone();
-                    const oldChildren = [...this.mesh.children];
-                    
-                    this.scene.remove(this.mesh);
-                    this.mesh = model;
-                    this.mesh.position.copy(oldPosition);
-                    this.mesh.position.y = 0; // Soldier is grounded
-                    
-                    // Re-add children (range indicator, glow)
-                    oldChildren.forEach(child => {
-                        this.mesh.add(child);
-                    });
-                    
-                    this.scene.add(this.mesh);
-                    console.log('Champion 3D model loaded successfully!');
-                },
-                undefined,
-                (error) => {
-                    console.warn('Could not load champion model, using fallback:', error);
-                }
-            );
-        } catch (error) {
-            console.warn('GLTFLoader not available, using fallback mesh');
-        }
     }
     
     setupControls() {
