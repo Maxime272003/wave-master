@@ -4,13 +4,16 @@ import { WaveManager, WaveState } from './wave.js';
 import { Champion } from './champion.js';
 import { GameUI } from './ui.js';
 import { TUTORIAL_STEPS } from './scenarios.js';
+import { DodgeManager } from './dodge.js';
 
 class WaveMasterGame {
     constructor() {
         this.gameScene = null;
         this.waveManager = null;
         this.champion = null;
+        this.champion = null;
         this.ui = null;
+        this.dodgeManager = null;
         
         this.gameState = 'loading'; // loading, menu, playing, paused
         this.gameMode = null; // tutorial, freeplay
@@ -48,6 +51,14 @@ class WaveMasterGame {
         this.champion.onProjectileHit = (pos, damage) => this.handleProjectileHit(pos, damage);
         this.champion.onNuclearBomb = () => this.handleNuclearBomb();
         
+        // Initialize dodge manager
+        this.dodgeManager = new DodgeManager(
+            this.gameScene.getScene(),
+            this.champion,
+            this.ui
+        );
+        this.dodgeManager.onGameOver = (score, highScore) => this.onDodgeGameOver(score, highScore);
+        
         // Simulate loading
         await this.simulateLoading();
         
@@ -83,6 +94,9 @@ class WaveMasterGame {
                 break;
             case 'freeplay':
                 this.startFreeplay();
+                break;
+            case 'dodge':
+                this.startDodge();
                 break;
         }
     }
@@ -134,7 +148,29 @@ class WaveMasterGame {
         
         this.resetGame();
         this.waveManager.setWaveInterval(15000); // 15 seconds between waves in freeplay
+        this.waveManager.setWaveInterval(15000); // 15 seconds between waves in freeplay
         this.waveManager.forceSpawnWave();
+    }
+    
+    startDodge() {
+        this.gameState = 'playing';
+        this.ui.showGameHUD();
+        
+        this.resetGame();
+        
+        // Hide wave related UI for dodge mode
+        document.getElementById('wave-indicator').classList.add('hidden');
+        document.getElementById('cs-value').parentElement.classList.add('hidden');
+        document.getElementById('xp-value').parentElement.classList.add('hidden');
+        document.getElementById('gold-value').parentElement.classList.add('hidden');
+        
+        this.dodgeManager.start();
+    }
+    
+    onDodgeGameOver(score, highScore) {
+        this.pause();
+        alert(`GAME OVER!\nScore: ${score}s\nRecord: ${highScore}s`);
+        this.quit();
     }
     
     resetGame() {
@@ -151,6 +187,15 @@ class WaveMasterGame {
         this.ui.updateStats({ gold: 0, cs: 0, xp: 0 });
         this.ui.updateWaveState(WaveState.EVEN);
         this.ui.updateTimer(0);
+        
+        // Reset specific managers
+        if (this.dodgeManager) this.dodgeManager.stop();
+        
+        // Reset UI visibility
+        document.getElementById('wave-indicator').classList.remove('hidden');
+        document.getElementById('cs-value').parentElement.classList.remove('hidden');
+        document.getElementById('xp-value').parentElement.classList.remove('hidden');
+        document.getElementById('gold-value').parentElement.classList.remove('hidden');
     }
     
     pause() {
@@ -175,6 +220,8 @@ class WaveMasterGame {
         
         if (this.gameMode === 'tutorial') {
             this.startTutorial();
+        } else if (this.gameMode === 'dodge') {
+            this.startDodge();
         } else {
             this.startFreeplay();
         }
@@ -270,15 +317,21 @@ class WaveMasterGame {
         this.gameTime += deltaTime * 1000;
         
         // Update wave manager
-        this.waveManager.update(deltaTime, this.gameTime);
-        
-        // Update champion
-        const allMinions = this.waveManager.getAllMinions();
-        this.champion.update(deltaTime, this.gameTime, allMinions);
-        
-        // Update UI
-        this.ui.updateStats(this.champion.getStats());
-        this.ui.updateTimer(this.gameTime);
+            if (this.gameMode === 'dodge') {
+                this.dodgeManager.update(deltaTime, this.gameTime);
+            } else {
+                this.waveManager.update(deltaTime, this.gameTime);
+            }
+            
+            // Champion update
+            const minions = this.waveManager.getAllMinions();
+            this.champion.update(deltaTime, this.gameTime, minions);
+            
+            // Update stats UI
+            if (this.gameMode !== 'dodge') {
+                this.ui.updateStats(this.champion.getStats());
+                this.ui.updateTimer(this.gameTime);
+            }
         this.ui.updateWaveIndicator(
             this.waveManager.getWavePosition(),
             this.waveManager.getMinionCounts()
