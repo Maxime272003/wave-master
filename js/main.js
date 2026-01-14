@@ -217,24 +217,22 @@ class WaveMasterGame {
         }
     }
     
-    handleProjectileHit(projectilePos, damage, hitEnemies) {
+    handleProjectileHit(projectilePos, damage) {
         const enemies = this.waveManager.getEnemyMinions();
         const hitRadius = 1.5; // Projectile hit detection radius
         
         for (const minion of enemies) {
-            // Skip already hit enemies
-            if (hitEnemies.has(minion)) continue;
-            
             const distance = projectilePos.distanceTo(minion.position);
             if (distance <= hitRadius + minion.collisionRadius) {
-                hitEnemies.add(minion); // Mark as hit
                 const killed = minion.takeDamage(damage, 'player');
                 if (killed) {
                     this.champion.onMinionKill(minion);
                     this.showGoldPopAt(minion);
                 }
+                return true; // Hit something
             }
         }
+        return false; // No hit
     }
     
     handleNuclearBomb() {

@@ -337,34 +337,25 @@ export class Champion {
     }
     
     fireProjectileSpell(damage, range) {
-        // Get mouse position in world space using raycaster
+        // Get mouse position in world space
         this.raycaster.setFromCamera(this.mouse, this.camera);
         const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
         const targetPoint = new THREE.Vector3();
+        this.raycaster.ray.intersectPlane(groundPlane, targetPoint);
         
-        // intersectPlane returns null if no intersection
-        const intersected = this.raycaster.ray.intersectPlane(groundPlane, targetPoint);
+        if (!targetPoint) return;
         
-        // If no intersection, shoot forward (negative Z direction)
-        let dirX = 0;
-        let dirZ = 1;
-        
-        if (intersected) {
-            // Calculate direction from champion to target
-            const dx = targetPoint.x - this.position.x;
-            const dz = targetPoint.z - this.position.z;
-            const length = Math.sqrt(dx * dx + dz * dz);
-            
-            if (length > 0.1) {
-                dirX = dx / length;
-                dirZ = dz / length;
-            }
-        }
+        // Calculate direction
+        const direction = new THREE.Vector3();
+        direction.subVectors(targetPoint, this.position);
+        direction.y = 0;
+        direction.normalize();
         
         // Create projectile
-        const projectileGeometry = new THREE.SphereGeometry(0.6, 16, 16);
+        const projectileGeometry = new THREE.SphereGeometry(0.4, 16, 16);
         const projectileMaterial = new THREE.MeshBasicMaterial({
             color: 0xff4500,
+            emissive: 0xff4500,
             transparent: true,
             opacity: 1
         });
@@ -373,46 +364,46 @@ export class Champion {
         projectile.position.set(this.position.x, 1, this.position.z);
         this.scene.add(projectile);
         
-        // Add glow light
-        const glowLight = new THREE.PointLight(0xff4500, 3, 8);
+        // Add glow
+        const glowLight = new THREE.PointLight(0xff4500, 2, 5);
         projectile.add(glowLight);
         
-        // Animation variables
-        const speed = 25;
-        const hitEnemies = new Set();
-        let isActive = true;
+        // Animate projectile
+        const startPos = projectile.position.clone();
+        const speed = 30; // units per second
+        let distanceTraveled = 0;
+        const maxDistance = range;
         
-        // Auto-destroy after 3 seconds
-        const timeoutId = setTimeout(() => {
-            if (isActive) {
-                isActive = false;
+        const animateProjectile = () => {
+            const moveDistance = speed * 0.016; // Approx frame time
+            distanceTraveled += moveDistance;
+            
+            projectile.position.x += direction.x * moveDistance;
+            projectile.position.z += direction.z * moveDistance;
+            
+            // Check collision with enemy minions
+            if (this.onProjectileHit) {
+                const hit = this.onProjectileHit(projectile.position, damage);
+                if (hit) {
+                    // Hit something, remove projectile
+                    this.scene.remove(projectile);
+                    projectileGeometry.dispose();
+                    projectileMaterial.dispose();
+                    return;
+                }
+            }
+            
+            if (distanceTraveled < maxDistance) {
+                requestAnimationFrame(animateProjectile);
+            } else {
+                // Remove projectile
                 this.scene.remove(projectile);
                 projectileGeometry.dispose();
                 projectileMaterial.dispose();
             }
-        }, 3000);
-        
-        // Animation loop using stored direction values
-        const storedDirX = dirX;
-        const storedDirZ = dirZ;
-        
-        const animate = () => {
-            if (!isActive) return;
-            
-            // Move projectile
-            projectile.position.x += storedDirX * speed * 0.016;
-            projectile.position.z += storedDirZ * speed * 0.016;
-            
-            // Check collision with enemies
-            if (this.onProjectileHit) {
-                this.onProjectileHit(projectile.position, damage, hitEnemies);
-            }
-            
-            requestAnimationFrame(animate);
         };
         
-        // Start animation
-        requestAnimationFrame(animate);
+        animateProjectile();
     }
     
     getSpellCooldowns(currentTime) {
