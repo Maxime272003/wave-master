@@ -126,6 +126,9 @@ export class GameUI {
     }
     
     updateWaveState(state) {
+        const previousState = this.waveStateEl.textContent;
+        const stateChanged = previousState !== state && previousState !== '';
+        
         this.waveStateEl.textContent = state;
         
         // Update class for styling
@@ -135,6 +138,21 @@ export class GameUI {
         else if (state.includes('FAST')) this.waveStateEl.classList.add('fast-push');
         else if (state.includes('BOUNCE')) this.waveStateEl.classList.add('bounce');
         else if (state.includes('CRASH')) this.waveStateEl.classList.add('crash');
+        
+        // Trigger animation if state changed
+        if (stateChanged) {
+            const display = this.waveStateEl.parentElement;
+            
+            // Add animation classes
+            this.waveStateEl.classList.add('state-changed');
+            display.classList.add('state-flash');
+            
+            // Remove after animation completes
+            setTimeout(() => {
+                this.waveStateEl.classList.remove('state-changed');
+                display.classList.remove('state-flash');
+            }, 500);
+        }
     }
     
     updateTimer(timeMs) {

@@ -395,10 +395,11 @@ body {
 .wave-state-display {
     background: var(--bg-glass);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 0.75rem 1.5rem;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 1rem 2rem;
     margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
 }
 
 .wave-state-label {
@@ -410,9 +411,53 @@ body {
 }
 
 .wave-state-value {
-    font-size: 1.25rem;
+    font-size: 1.8rem;
     font-weight: 700;
     color: var(--primary-light);
+    transition: all 0.2s ease;
+}
+
+.wave-state-value.state-changed {
+    animation: waveStateBump 0.5s ease;
+}
+
+.wave-state-display.state-flash {
+    animation: waveStateFlash 0.4s ease;
+}
+
+@keyframes waveStateBump {
+    0% {
+        transform: scale(1);
+    }
+
+    30% {
+        transform: scale(1.3);
+    }
+
+    60% {
+        transform: scale(0.95);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes waveStateFlash {
+    0% {
+        border-color: rgba(255, 255, 255, 0.15);
+        box-shadow: none;
+    }
+
+    50% {
+        border-color: currentColor;
+        box-shadow: 0 0 20px currentColor;
+    }
+
+    100% {
+        border-color: rgba(255, 255, 255, 0.15);
+        box-shadow: none;
+    }
 }
 
 .wave-state-value.freeze {
@@ -645,8 +690,15 @@ body {
 }
 
 @keyframes ultimatePulse {
-    0%, 100% { box-shadow: 0 0 10px rgba(255, 69, 0, 0.5); }
-    50% { box-shadow: 0 0 20px rgba(255, 69, 0, 0.9); }
+
+    0%,
+    100% {
+        box-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 20px rgba(255, 69, 0, 0.9);
+    }
 }
 
 /* ===== Wave Indicator ===== */
