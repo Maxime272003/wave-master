@@ -29,6 +29,8 @@ export class GameUI {
         
         // Pause menu
         this.pauseMenu = document.getElementById('pause-menu');
+        this.resultsScreen = document.getElementById('results-screen');
+        this.dodgeGameOverScreen = document.getElementById('dodge-game-over');
         
         // Callbacks
         this.onModeSelect = null;
@@ -81,6 +83,21 @@ export class GameUI {
         this.tutorialNext.addEventListener('click', () => {
             if (this.onTutorialNext) this.onTutorialNext();
         });
+        
+        // Dodge Game Over buttons
+        const dodgeRestartBtn = document.getElementById('dodge-restart-btn');
+        if (dodgeRestartBtn) {
+            dodgeRestartBtn.addEventListener('click', () => {
+                if (this.onRestart) this.onRestart();
+            });
+        }
+        
+        const dodgeQuitBtn = document.getElementById('dodge-quit-btn');
+        if (dodgeQuitBtn) {
+            dodgeQuitBtn.addEventListener('click', () => {
+                if (this.onQuit) this.onQuit();
+            });
+        }
     }
     
     // === Screen Management ===
@@ -115,6 +132,8 @@ export class GameUI {
         this.gameHud.classList.add('hidden');
         this.pauseMenu.classList.add('hidden');
         this.tutorialPanel.classList.add('hidden');
+        if (this.resultsScreen) this.resultsScreen.classList.add('hidden');
+        if (this.dodgeGameOverScreen) this.dodgeGameOverScreen.classList.add('hidden');
     }
     
     // === HUD Updates ===
@@ -257,25 +276,6 @@ export class GameUI {
             leaderboardBody.appendChild(row);
         });
         
-        // Setup specialized buttons for this screen
-        // Note: Ideally these listeners should be set once in setupEventListeners, 
-        // but for simplicity we ensure they trigger the main callbacks
-        
-        const restartBtn = document.getElementById('dodge-restart-btn');
-        const quitBtn = document.getElementById('dodge-quit-btn');
-        
-        // Remove old listeners to avoid duplicates (cloning)
-        const newRestart = restartBtn.cloneNode(true);
-        const newQuit = quitBtn.cloneNode(true);
-        restartBtn.parentNode.replaceChild(newRestart, restartBtn);
-        quitBtn.parentNode.replaceChild(newQuit, quitBtn);
-        
-        newRestart.addEventListener('click', () => {
-            if (this.onRestart) this.onRestart();
-        });
-        
-        newQuit.addEventListener('click', () => {
-            if (this.onQuit) this.onQuit();
-        });
+        // Buttons are now handled in setupEventListeners
     }
 }
