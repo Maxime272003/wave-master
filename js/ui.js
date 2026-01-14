@@ -81,29 +81,6 @@ export class GameUI {
         this.tutorialNext.addEventListener('click', () => {
             if (this.onTutorialNext) this.onTutorialNext();
         });
-        
-        // Theory/Blueprint Modal
-        const theoryBtn = document.getElementById('theory-btn');
-        const theoryModal = document.getElementById('theory-modal');
-        const closeTheoryBtn = document.getElementById('close-theory');
-        
-        if (theoryBtn && theoryModal && closeTheoryBtn) {
-            theoryBtn.addEventListener('click', () => {
-                theoryModal.classList.remove('hidden');
-                if (this.onPause) this.onPause(); // Pause game when viewing theory
-            });
-            
-            closeTheoryBtn.addEventListener('click', () => {
-                theoryModal.classList.add('hidden');
-            });
-            
-            // Close on click outside
-            theoryModal.addEventListener('click', (e) => {
-                if (e.target === theoryModal) {
-                    theoryModal.classList.add('hidden');
-                }
-            });
-        }
     }
     
     // === Screen Management ===
