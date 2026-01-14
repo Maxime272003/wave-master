@@ -337,26 +337,32 @@ export class Champion {
     }
     
     fireProjectileSpell(damage, range) {
-        // Get mouse position in world space
+        // Get mouse position in world space using raycaster
         this.raycaster.setFromCamera(this.mouse, this.camera);
         const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
         const targetPoint = new THREE.Vector3();
-        this.raycaster.ray.intersectPlane(groundPlane, targetPoint);
         
-        if (!targetPoint) return;
+        // intersectPlane returns null if no intersection
+        const intersected = this.raycaster.ray.intersectPlane(groundPlane, targetPoint);
         
-        // Calculate direction
-        const direction = new THREE.Vector3();
-        direction.subVectors(targetPoint, this.position);
-        direction.y = 0;
-        direction.normalize();
+        // If no intersection, shoot forward (negative Z direction)
+        let dirX = 0;
+        let dirZ = 1;
         
-        // Store direction values explicitly
-        const dirX = direction.x;
-        const dirZ = direction.z;
+        if (intersected) {
+            // Calculate direction from champion to target
+            const dx = targetPoint.x - this.position.x;
+            const dz = targetPoint.z - this.position.z;
+            const length = Math.sqrt(dx * dx + dz * dz);
+            
+            if (length > 0.1) {
+                dirX = dx / length;
+                dirZ = dz / length;
+            }
+        }
         
         // Create projectile
-        const projectileGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+        const projectileGeometry = new THREE.SphereGeometry(0.6, 16, 16);
         const projectileMaterial = new THREE.MeshBasicMaterial({
             color: 0xff4500,
             transparent: true,
@@ -367,18 +373,17 @@ export class Champion {
         projectile.position.set(this.position.x, 1, this.position.z);
         this.scene.add(projectile);
         
-        // Add glow
-        const glowLight = new THREE.PointLight(0xff4500, 2, 5);
+        // Add glow light
+        const glowLight = new THREE.PointLight(0xff4500, 3, 8);
         projectile.add(glowLight);
         
-        // Animate projectile
-        const speed = 25; // units per second
-        const hitEnemies = new Set(); // Track already hit enemies
+        // Animation variables
+        const speed = 25;
+        const hitEnemies = new Set();
         let isActive = true;
-        let lastTime = performance.now();
         
         // Auto-destroy after 3 seconds
-        setTimeout(() => {
+        const timeoutId = setTimeout(() => {
             if (isActive) {
                 isActive = false;
                 this.scene.remove(projectile);
@@ -387,27 +392,27 @@ export class Champion {
             }
         }, 3000);
         
-        const animateProjectile = () => {
+        // Animation loop using stored direction values
+        const storedDirX = dirX;
+        const storedDirZ = dirZ;
+        
+        const animate = () => {
             if (!isActive) return;
             
-            const now = performance.now();
-            const deltaTime = (now - lastTime) / 1000;
-            lastTime = now;
+            // Move projectile
+            projectile.position.x += storedDirX * speed * 0.016;
+            projectile.position.z += storedDirZ * speed * 0.016;
             
-            const moveDistance = speed * deltaTime;
-            
-            projectile.position.x += dirX * moveDistance;
-            projectile.position.z += dirZ * moveDistance;
-            
-            // Check collision with enemy minions - pass through all!
+            // Check collision with enemies
             if (this.onProjectileHit) {
                 this.onProjectileHit(projectile.position, damage, hitEnemies);
             }
             
-            requestAnimationFrame(animateProjectile);
+            requestAnimationFrame(animate);
         };
         
-        animateProjectile();
+        // Start animation
+        requestAnimationFrame(animate);
     }
     
     getSpellCooldowns(currentTime) {
