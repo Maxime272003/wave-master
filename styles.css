@@ -845,7 +845,103 @@ body {
     height: 100% !important;
 }
 
-/* ===== Animations ===== */
+/* ===== Game Over Screen ===== */
+.game-over-container {
+    background: rgba(15, 23, 42, 0.95) !important;
+    border: 2px solid var(--danger);
+    min-width: 400px;
+}
+
+.game-over-title {
+    color: var(--danger);
+    font-size: 3rem;
+    margin-bottom: 2rem;
+    text-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+}
+
+.current-score-box {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.score-label {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.score-display .score-value {
+    color: var(--warning);
+}
+
+#current-score-display {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-light);
+}
+
+.leaderboard-section {
+    margin-bottom: 2rem;
+    width: 100%;
+}
+
+.leaderboard-section h3 {
+    color: var(--secondary);
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.leaderboard-table-container {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 0.5rem;
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.leaderboard-table th {
+    text-align: left;
+    padding: 0.5rem;
+    color: var(--text-muted);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.leaderboard-table td {
+    padding: 0.5rem;
+    color: var(--text-primary);
+}
+
+.leaderboard-table tr:first-child td {
+    color: var(--warning);
+    /* Gold for 1st place */
+    font-weight: bold;
+}
+
+.leaderboard-table tr:nth-child(2) td {
+    color: #e2e8f0;
+    /* Silver */
+}
+
+.leaderboard-table tr:nth-child(3) td {
+    color: #b45309;
+    /* Bronze */
+}
+
+.menu-buttons-row {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;

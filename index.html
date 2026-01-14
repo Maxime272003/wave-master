@@ -139,6 +139,43 @@
         </div>
     </div>
 
+    </div>
+
+    <!-- Dodge Game Over Screen -->
+    <div id="dodge-game-over" class="hidden">
+        <div class="pause-container game-over-container">
+            <h2 class="game-over-title">GAME OVER</h2>
+            
+            <div class="current-score-box">
+                <span class="score-label">Temps Survécu</span>
+                <span class="score-value" id="current-score-display">0s</span>
+            </div>
+            
+            <div class="leaderboard-section">
+                <h3>Top Scores</h3>
+                <div class="leaderboard-table-container">
+                    <table class="leaderboard-table">
+                        <thead>
+                            <tr>
+                                <th>Rang</th>
+                                <th>Score</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body">
+                            <!-- Rows added by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="menu-buttons-row">
+                <button class="menu-btn" id="dodge-restart-btn">Réessayer</button>
+                <button class="menu-btn" id="dodge-quit-btn">Menu Principal</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Victory/Results Screen -->
     <div id="results-screen" class="hidden">
         <div class="results-container">

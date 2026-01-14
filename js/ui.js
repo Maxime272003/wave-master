@@ -227,4 +227,55 @@ export class GameUI {
             }
         }
     }
+    
+    // === Dodge Game Over ===
+    
+    showDodgeGameOver(score, highScore, leaderboard) {
+        this.hideAll();
+        
+        const screen = document.getElementById('dodge-game-over');
+        const scoreDisplay = document.getElementById('current-score-display');
+        const leaderboardBody = document.getElementById('leaderboard-body');
+        
+        screen.classList.remove('hidden');
+        scoreDisplay.textContent = `${score}s`;
+        
+        // Populate leaderboard
+        leaderboardBody.innerHTML = '';
+        
+        if (!leaderboard || leaderboard.length === 0) {
+            leaderboard = [{ score: highScore, date: new Date().toLocaleDateString() }];
+        }
+        
+        leaderboard.forEach((entry, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>#${index + 1}</td>
+                <td>${entry.score}s</td>
+                <td>${entry.date}</td>
+            `;
+            leaderboardBody.appendChild(row);
+        });
+        
+        // Setup specialized buttons for this screen
+        // Note: Ideally these listeners should be set once in setupEventListeners, 
+        // but for simplicity we ensure they trigger the main callbacks
+        
+        const restartBtn = document.getElementById('dodge-restart-btn');
+        const quitBtn = document.getElementById('dodge-quit-btn');
+        
+        // Remove old listeners to avoid duplicates (cloning)
+        const newRestart = restartBtn.cloneNode(true);
+        const newQuit = quitBtn.cloneNode(true);
+        restartBtn.parentNode.replaceChild(newRestart, restartBtn);
+        quitBtn.parentNode.replaceChild(newQuit, quitBtn);
+        
+        newRestart.addEventListener('click', () => {
+            if (this.onRestart) this.onRestart();
+        });
+        
+        newQuit.addEventListener('click', () => {
+            if (this.onQuit) this.onQuit();
+        });
+    }
 }

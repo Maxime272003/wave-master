@@ -187,15 +187,33 @@ export class DodgeManager {
     gameOver() {
         this.isActive = false;
         
-        // Check High Score
+        // Handle High Score
         if (this.score > this.highScore) {
             this.highScore = this.score;
             localStorage.setItem('waveMaster_dodgeHighScore', this.highScore);
         }
         
+        // Handle Leaderboard
+        let leaderboard = JSON.parse(localStorage.getItem('waveMaster_dodgeLeaderboard') || '[]');
+        
+        // Add new score
+        leaderboard.push({
+            score: this.score,
+            date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString()
+        });
+        
+        // Sort descending
+        leaderboard.sort((a, b) => b.score - a.score);
+        
+        // Keep top 5
+        leaderboard = leaderboard.slice(0, 5);
+        
+        // Save
+        localStorage.setItem('waveMaster_dodgeLeaderboard', JSON.stringify(leaderboard));
+        
         // Callback to main
         if (this.onGameOver) {
-            this.onGameOver(this.score, this.highScore);
+            this.onGameOver(this.score, this.highScore, leaderboard);
         }
     }
     

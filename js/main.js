@@ -167,10 +167,10 @@ class WaveMasterGame {
         this.dodgeManager.start();
     }
     
-    onDodgeGameOver(score, highScore) {
+    onDodgeGameOver(score, highScore, leaderboard) {
         this.pause();
-        alert(`GAME OVER!\nScore: ${score}s\nRecord: ${highScore}s`);
-        this.quit();
+        this.ui.showDodgeGameOver(score, highScore, leaderboard);
+        // Do not quit immediately, let user decide via UI buttons
     }
     
     resetGame() {
