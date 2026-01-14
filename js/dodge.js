@@ -49,7 +49,8 @@ export class DodgeManager {
     update(deltaTime, currentTime) {
         if (!this.isActive) return;
         
-        this.gameTime = currentTime - this.startTime;
+        // Accumulate time using delta (currentTime passed from main.js is gameTime, but relying on delta is safer)
+        this.gameTime += deltaTime * 1000;
         this.score = Math.floor(this.gameTime / 1000);
         
         // Update Difficulty
