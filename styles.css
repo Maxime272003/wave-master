@@ -126,7 +126,8 @@ body {
 #main-menu,
 #scenario-select,
 #pause-menu,
-#results-screen {
+#results-screen,
+#dodge-game-over {
     position: fixed;
     inset: 0;
     display: flex;
