@@ -42,7 +42,7 @@ export class Champion {
                 damage: 150,
                 cooldown: 6000,
                 lastUsed: -10000,
-                range: 20, // Long range projectile
+                range: 20,
                 icon: '🔥'
             },
             Z: {
@@ -61,6 +61,14 @@ export class Champion {
                 lastUsed: -20000,
                 speedBoost: 2,
                 icon: '💨'
+            },
+            R: {
+                name: 'Bombe Nuke',
+                damage: 9999,
+                cooldown: 60000,
+                lastUsed: -70000,
+                range: 100,
+                icon: '☢️'
             }
         };
         
@@ -160,6 +168,9 @@ export class Champion {
             case 'KeyE':
                 this.castSpell('E', currentTime);
                 break;
+            case 'KeyR':
+                this.castSpell('R', currentTime);
+                break;
             case 'Space':
                 this.tryAttackLowestHealth();
                 break;
@@ -193,6 +204,12 @@ export class Champion {
             this.isSprinting = true;
             this.sprintEndTime = currentTime + spell.duration;
             this.createSpellEffect(this.position, 0x22c55e, 2);
+        } else if (key === 'R') {
+            // Nuclear bomb - kills ALL minions
+            this.createNuclearExplosion();
+            if (this.onNuclearBomb) {
+                this.onNuclearBomb();
+            }
         }
         
         // Notify UI
@@ -231,6 +248,92 @@ export class Champion {
             }
         };
         animate();
+    }
+    
+    createNuclearExplosion() {
+        // Create massive nuclear explosion effect
+        const center = this.position.clone();
+        
+        // Flash effect - white sphere expanding
+        const flashGeometry = new THREE.SphereGeometry(1, 32, 32);
+        const flashMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 1
+        });
+        const flash = new THREE.Mesh(flashGeometry, flashMaterial);
+        flash.position.set(center.x, 5, center.z);
+        this.scene.add(flash);
+        
+        // Mushroom cloud base
+        const cloudGeometry = new THREE.SphereGeometry(2, 32, 32);
+        const cloudMaterial = new THREE.MeshBasicMaterial({
+            color: 0xff4500,
+            transparent: true,
+            opacity: 0.9
+        });
+        const cloud = new THREE.Mesh(cloudGeometry, cloudMaterial);
+        cloud.position.set(center.x, 8, center.z);
+        this.scene.add(cloud);
+        
+        // Shock wave ring
+        const ringGeometry = new THREE.RingGeometry(0.5, 2, 64);
+        const ringMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffff00,
+            transparent: true,
+            opacity: 0.8,
+            side: THREE.DoubleSide
+        });
+        const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+        ring.rotation.x = -Math.PI / 2;
+        ring.position.set(center.x, 0.2, center.z);
+        this.scene.add(ring);
+        
+        // Add intense light
+        const nukeLight = new THREE.PointLight(0xff4500, 10, 100);
+        nukeLight.position.set(center.x, 10, center.z);
+        this.scene.add(nukeLight);
+        
+        // Animate explosion
+        let time = 0;
+        const animateNuke = () => {
+            time += 0.016;
+            
+            // Flash expands and fades
+            flash.scale.setScalar(1 + time * 50);
+            flash.material.opacity = Math.max(0, 1 - time * 2);
+            
+            // Cloud rises and expands
+            cloud.position.y = 8 + time * 20;
+            cloud.scale.setScalar(1 + time * 15);
+            cloud.material.opacity = Math.max(0, 0.9 - time * 0.5);
+            cloud.material.color.setHex(time < 0.5 ? 0xff4500 : 0x444444);
+            
+            // Ring expands
+            ring.scale.setScalar(1 + time * 40);
+            ring.material.opacity = Math.max(0, 0.8 - time);
+            
+            // Light fades
+            nukeLight.intensity = Math.max(0, 10 - time * 8);
+            
+            if (time < 2) {
+                requestAnimationFrame(animateNuke);
+            } else {
+                // Cleanup
+                this.scene.remove(flash);
+                this.scene.remove(cloud);
+                this.scene.remove(ring);
+                this.scene.remove(nukeLight);
+                flashGeometry.dispose();
+                flashMaterial.dispose();
+                cloudGeometry.dispose();
+                cloudMaterial.dispose();
+                ringGeometry.dispose();
+                ringMaterial.dispose();
+            }
+        };
+        
+        animateNuke();
     }
     
     fireProjectileSpell(damage, range) {

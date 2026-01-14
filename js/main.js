@@ -46,6 +46,7 @@ class WaveMasterGame {
         this.champion.onSpellUpdate = (cooldowns) => this.ui.updateSpellCooldowns(cooldowns);
         this.champion.onAOEDamage = (damage, range) => this.handleAOEDamage(damage, range);
         this.champion.onProjectileHit = (pos, damage) => this.handleProjectileHit(pos, damage);
+        this.champion.onNuclearBomb = () => this.handleNuclearBomb();
         
         // Simulate loading
         await this.simulateLoading();
@@ -232,6 +233,22 @@ class WaveMasterGame {
             }
         }
         return false; // No hit
+    }
+    
+    handleNuclearBomb() {
+        // Kill ALL minions - allies and enemies
+        const allMinions = this.waveManager.getAllMinions();
+        
+        for (const minion of allMinions) {
+            if (!minion.isDead) {
+                // Enemy minions give gold
+                if (minion.team === 'enemy') {
+                    this.champion.onMinionKill(minion);
+                    this.showGoldPopAt(minion);
+                }
+                minion.takeDamage(9999, 'player');
+            }
+        }
     }
     
     showGoldPopAt(minion) {
