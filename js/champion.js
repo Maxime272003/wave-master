@@ -371,36 +371,33 @@ export class Champion {
         // Animate projectile
         const startPos = projectile.position.clone();
         const speed = 30; // units per second
-        let distanceTraveled = 0;
-        const maxDistance = range;
+        const hitEnemies = new Set(); // Track already hit enemies
+        let isActive = true;
         
-        const animateProjectile = () => {
-            const moveDistance = speed * 0.016; // Approx frame time
-            distanceTraveled += moveDistance;
-            
-            projectile.position.x += direction.x * moveDistance;
-            projectile.position.z += direction.z * moveDistance;
-            
-            // Check collision with enemy minions
-            if (this.onProjectileHit) {
-                const hit = this.onProjectileHit(projectile.position, damage);
-                if (hit) {
-                    // Hit something, remove projectile
-                    this.scene.remove(projectile);
-                    projectileGeometry.dispose();
-                    projectileMaterial.dispose();
-                    return;
-                }
-            }
-            
-            if (distanceTraveled < maxDistance) {
-                requestAnimationFrame(animateProjectile);
-            } else {
-                // Remove projectile
+        // Auto-destroy after 3 seconds
+        setTimeout(() => {
+            if (isActive) {
+                isActive = false;
                 this.scene.remove(projectile);
                 projectileGeometry.dispose();
                 projectileMaterial.dispose();
             }
+        }, 3000);
+        
+        const animateProjectile = () => {
+            if (!isActive) return;
+            
+            const moveDistance = speed * 0.016; // Approx frame time
+            
+            projectile.position.x += direction.x * moveDistance;
+            projectile.position.z += direction.z * moveDistance;
+            
+            // Check collision with enemy minions - pass through all!
+            if (this.onProjectileHit) {
+                this.onProjectileHit(projectile.position, damage, hitEnemies);
+            }
+            
+            requestAnimationFrame(animateProjectile);
         };
         
         animateProjectile();
