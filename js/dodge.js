@@ -73,15 +73,18 @@ export class DodgeManager {
     }
     
     updateDifficulty() {
-        // Increase difficulty every 10 seconds
-        const newLevel = 1 + Math.floor(this.score / 10);
+        // Increase difficulty every 5 seconds (was 10)
+        const newLevel = 1 + Math.floor(this.score / 5);
         
         if (newLevel > this.difficultyLevel) {
             this.difficultyLevel = newLevel;
             
-            // Make it harder
-            this.spawnRate = Math.max(200, 1500 - (this.difficultyLevel * 100));
-            this.projectileSpeed = 8 + (this.difficultyLevel * 1.5);
+            // Make it harder faster
+            // Spawn rate decreases (min 150ms)
+            this.spawnRate = Math.max(150, 1500 - (this.difficultyLevel * 150));
+            
+            // Speed increases linearly
+            this.projectileSpeed = 8 + (this.difficultyLevel * 2);
             
             // Visual feedback
             this.ui.updateWaveState(`NIVEAU ${this.difficultyLevel}!`);
