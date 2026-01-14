@@ -45,6 +45,7 @@ class WaveMasterGame {
         this.champion.onRequestLowestHealthAttack = () => this.attackLowestHealth();
         this.champion.onSpellUpdate = (cooldowns) => this.ui.updateSpellCooldowns(cooldowns);
         this.champion.onAOEDamage = (damage, range) => this.handleAOEDamage(damage, range);
+        this.champion.onProjectileHit = (pos, damage) => this.handleProjectileHit(pos, damage);
         
         // Simulate loading
         await this.simulateLoading();
@@ -213,6 +214,24 @@ class WaveMasterGame {
                 }
             }
         }
+    }
+    
+    handleProjectileHit(projectilePos, damage) {
+        const enemies = this.waveManager.getEnemyMinions();
+        const hitRadius = 1.5; // Projectile hit detection radius
+        
+        for (const minion of enemies) {
+            const distance = projectilePos.distanceTo(minion.position);
+            if (distance <= hitRadius + minion.collisionRadius) {
+                const killed = minion.takeDamage(damage, 'player');
+                if (killed) {
+                    this.champion.onMinionKill(minion);
+                    this.showGoldPopAt(minion);
+                }
+                return true; // Hit something
+            }
+        }
+        return false; // No hit
     }
     
     showGoldPopAt(minion) {

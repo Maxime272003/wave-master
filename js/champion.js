@@ -11,7 +11,7 @@ export class Champion {
         
         this.moveSpeed = 8;
         this.attackDamage = 65;
-        this.attackRange = 5;
+        this.attackRange = 10; // Longer attack range
         this.attackCooldown = 600; // ms
         this.lastAttackTime = 0;
         
@@ -38,12 +38,12 @@ export class Champion {
         // Spells
         this.spells = {
             A: {
-                name: 'Frappe Puissante',
+                name: 'Projectile',
                 damage: 150,
-                cooldown: 8000,
+                cooldown: 6000,
                 lastUsed: -10000,
-                range: 4,
-                icon: '⚔️'
+                range: 20, // Long range projectile
+                icon: '🔥'
             },
             Z: {
                 name: 'Onde de Choc',
@@ -178,19 +178,8 @@ export class Champion {
         spell.lastUsed = currentTime;
         
         if (key === 'A') {
-            // Strong single target attack
-            if (this.targetMinion && !this.targetMinion.isDead) {
-                const distance = this.position.distanceTo(this.targetMinion.position);
-                if (distance <= spell.range) {
-                    this.targetMinion.takeDamage(spell.damage, 'player');
-                    this.createSpellEffect(this.targetMinion.position, 0xef4444);
-                    
-                    // Check if killed
-                    if (this.targetMinion.isDead) {
-                        this.onMinionKill(this.targetMinion);
-                    }
-                }
-            }
+            // Fire projectile towards mouse position
+            this.fireProjectileSpell(spell.damage, spell.range);
         } else if (key === 'Z') {
             // AOE attack
             this.createSpellEffect(this.position, 0x3b82f6, spell.range);
@@ -242,6 +231,76 @@ export class Champion {
             }
         };
         animate();
+    }
+    
+    fireProjectileSpell(damage, range) {
+        // Get mouse position in world space
+        this.raycaster.setFromCamera(this.mouse, this.camera);
+        const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+        const targetPoint = new THREE.Vector3();
+        this.raycaster.ray.intersectPlane(groundPlane, targetPoint);
+        
+        if (!targetPoint) return;
+        
+        // Calculate direction
+        const direction = new THREE.Vector3();
+        direction.subVectors(targetPoint, this.position);
+        direction.y = 0;
+        direction.normalize();
+        
+        // Create projectile
+        const projectileGeometry = new THREE.SphereGeometry(0.4, 16, 16);
+        const projectileMaterial = new THREE.MeshBasicMaterial({
+            color: 0xff4500,
+            emissive: 0xff4500,
+            transparent: true,
+            opacity: 1
+        });
+        
+        const projectile = new THREE.Mesh(projectileGeometry, projectileMaterial);
+        projectile.position.set(this.position.x, 1, this.position.z);
+        this.scene.add(projectile);
+        
+        // Add glow
+        const glowLight = new THREE.PointLight(0xff4500, 2, 5);
+        projectile.add(glowLight);
+        
+        // Animate projectile
+        const startPos = projectile.position.clone();
+        const speed = 30; // units per second
+        let distanceTraveled = 0;
+        const maxDistance = range;
+        
+        const animateProjectile = () => {
+            const moveDistance = speed * 0.016; // Approx frame time
+            distanceTraveled += moveDistance;
+            
+            projectile.position.x += direction.x * moveDistance;
+            projectile.position.z += direction.z * moveDistance;
+            
+            // Check collision with enemy minions
+            if (this.onProjectileHit) {
+                const hit = this.onProjectileHit(projectile.position, damage);
+                if (hit) {
+                    // Hit something, remove projectile
+                    this.scene.remove(projectile);
+                    projectileGeometry.dispose();
+                    projectileMaterial.dispose();
+                    return;
+                }
+            }
+            
+            if (distanceTraveled < maxDistance) {
+                requestAnimationFrame(animateProjectile);
+            } else {
+                // Remove projectile
+                this.scene.remove(projectile);
+                projectileGeometry.dispose();
+                projectileMaterial.dispose();
+            }
+        };
+        
+        animateProjectile();
     }
     
     getSpellCooldowns(currentTime) {

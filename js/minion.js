@@ -59,10 +59,10 @@ export class Minion {
     
     getCollisionRadius() {
         switch (this.type) {
-            case 'melee': return 1.2;
-            case 'caster': return 1.0;
-            case 'cannon': return 1.5;
-            default: return 1.2;
+            case 'melee': return 2.0;
+            case 'caster': return 1.8;
+            case 'cannon': return 2.5;
+            default: return 2.0;
         }
     }
     
@@ -91,16 +91,16 @@ export class Minion {
         
         switch (this.type) {
             case 'melee':
-                geometry = new THREE.BoxGeometry(1.2, 1.4, 1.2); // Plus grand
-                size = 1;
+                geometry = new THREE.BoxGeometry(1.8, 2.0, 1.8); // Bigger
+                size = 1.2;
                 break;
             case 'caster':
-                geometry = new THREE.ConeGeometry(0.7, 1.2, 6); // Plus grand
-                size = 0.9;
+                geometry = new THREE.ConeGeometry(1.0, 1.6, 6); // Bigger
+                size = 1.1;
                 break;
             case 'cannon':
-                geometry = new THREE.CylinderGeometry(0.8, 1.0, 1.8, 8); // Plus grand
-                size = 1.4;
+                geometry = new THREE.CylinderGeometry(1.2, 1.4, 2.4, 8); // Bigger
+                size = 1.6;
                 break;
             default:
                 geometry = new THREE.BoxGeometry(1.2, 1.4, 1.2);
